@@ -8,8 +8,12 @@
 // initialize the global game object
 var game = game || {};
 
-// loads all the game scripts onto the HTML document
 function loadGame(){
+	loadScripts();
+}
+
+// loads all the game scripts onto the HTML document
+function loadScripts(){
 	// load the vec2 game script
 	var script_vec2 = document.createElement("script");
 	script_vec2.src = "./js/vec2.js";
@@ -18,8 +22,12 @@ function loadGame(){
 	script_game.src = "./js/game.js";
 
 	// append the scripts to the HTML document
-	document.head.appendChild(script_game);
 	document.head.appendChild(script_vec2);
+	document.head.appendChild(script_game);
+}
+// initailizes all the variables from the scripts that are loaded{
+function initScripts() {
+	initGameVars();
 }
 
 // appends the scaling canvas to the HTML document
