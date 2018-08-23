@@ -8,6 +8,13 @@
 // initialize the global game object
 var game = game || {};
 
+// terminalType enumerator
+game.terminalType = {
+    closed: 0,
+    input: 1,
+    output: 2
+}
+
 class circuit{
     constructor(){
         this.grid = [];
@@ -30,13 +37,76 @@ class circuit{
             }
         }
     }
+
+    getComponentAt(x, y){
+        return this.grid[x][y];
+    }
+    setComponentAt(componentObj, x, y){
+        this.grid[x][y] = componentObj;
+    }
 }
 
 class circuitComponent{
     constructor(){
+        this.circuitParent = null;
+        this.circuitPosition = null;
+        
+        this.terminals = [];
+
+        this.powerConsumption = 0;
+        this.powerResistance = 0;
+        this.powerAmplification = 1;
+    }
+
+    // the proper way to add a component to a circuit
+    attachToCircuit(circuitObj, x, y){
+        if(!y){
+            this.attachToCircuit(circuitObj, x.x, x.y);
+            return;
+        }
+        this.circuitParent = circuitObj;
+    }
+    // gets a list of all the coomponents that this component outputs to
+    getOutputComponents(){
+        if(!this.circuitParent)
+            return [];
+        var r = [];
+        //TODO: Fill output list 'r'
+        return r;
+    }
+    // gets a list of all the components that this component receives input from
+    getInputComponents(){
+        if(!this.circuitParent)inputinput
+            return [];
+        var r = [];
+        //TODO: Fill input list 'r'
+        return r;
     }
 
     static getEmpty(){
         return new circuitComponent();
+    }
+}
+
+class componentTerminal{
+    constructor(){
+        this.parentComponent = null;
+        this.type = game.terminalType.closed;
+        this.terminalDirection = side.none;
+        this.terminalID = -1;
+    }
+
+    // the proper way to attach a terminal to a component
+    attachToComponent(componentObj, dir = null){
+        this.parentComponent = componentObj;
+        if(!!dir) this.terminalDirection = dir;
+    }
+
+    // returns a closed terminal
+    static getClosed(componentObj, dir = side.none){
+        var r = new componentTerminal();
+        r.attachToComponent(componentObj);
+        r.terminalDirection = dir;
+        return r;
     }
 }
