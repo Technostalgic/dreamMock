@@ -72,6 +72,7 @@ function renderStep(){
 	// draw the test circuit
 	game.initialCircuit.draw(game.renderContext, new vec2(50, 50), 32);
 	drawInitialCircuitControls(game.renderContext, new vec2(25, 400));
+	drawTerminalPlacement();
 
 	// paste the render canvas onto the scaling canvas with the corrected size
 	game.scalingContext.drawImage(
@@ -114,6 +115,60 @@ function handleInitialCircuitControls(controlstate = controlState){
 		game.initialCircuit.sendTrigger();
 		game.controlHoldUp = true;
 	}
+}
+function handleInitialCircuitBuilding(controlstate = controlState){
+
+}
+function drawTerminalPlacement(controlstate = controlState){
+	var length = 16;
+	var mxW = 4;
+	var mnW = 2;
+
+	var mp = controlstate.mousePos.clone();
+	var gridPos = mp.minus(new vec2(50));
+	gridPos = gridPos.multiply(1 / 32);
+	var gridSubPos = new vec2(gridPos.x % 1, gridPos.y % 1);
+	gridSubPos = gridSubPos.minus(new vec2(0.5));
+	
+	var selSide = side.none;
+	var leftness = Math.max(0, gridSubPos.x * -1);
+	var rightness = Math.max(0, gridSubPos.x);
+	var upness = Math.max(0, gridSubPos.y * -1);
+	var downness = Math.max(0, gridSubPos.y);
+	switch(Math.max(leftness, rightness, upness, downness)){
+		case leftness: selSide = side.left; break;
+		case rightness: selSide = side.right; break;
+		case upness: selSide = side.up; break;
+		case downness: selSide = side.down; break;
+	}
+
+	var termPos = new vec2(Math.floor(gridPos.x), Math.floor(gridPos.y)).multiply(32).plus(new vec2(50));
+	var termDir = 0;
+	switch(selSide){
+		case side.left: termDir = Math.PI; break;
+		case side.right: termDir = 0; break;
+		case side.up: termDir = Math.PI / -2; break;
+		case side.down: termDir = Math.PI / 2; break;
+	}
+
+    // determine the 4 corners of the polygon
+    var tl = new vec2(0, -mxW).rotate(termDir).plus(termPos).plus(new vec2(length));
+    var tr = new vec2(length, -mnW).rotate(termDir).plus(termPos).plus(new vec2(length));
+    var br = new vec2(length, mnW).rotate(termDir).plus(termPos).plus(new vec2(length));
+	var bl = new vec2(0, mxW).rotate(termDir).plus(termPos).plus(new vec2(length));
+	
+    // draw the polygon
+    color.getGreyscale(0.5).setFill(game.renderContext);
+    game.renderContext.beginPath();
+    game.renderContext.moveTo(tl.x, tl.y);
+    game.renderContext.lineTo(tr.x, tr.y);
+    game.renderContext.lineTo(br.x, br.y);
+    game.renderContext.lineTo(bl.x, bl.y);
+    game.renderContext.closePath();
+    game.renderContext.fill();
+}
+function functionGetTerminalOrientationAt(pos){
+	
 }
 
 function drawInitialCircuitControls(ctx, pos){

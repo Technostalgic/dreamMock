@@ -244,6 +244,12 @@ class color{
 		ctx.strokeStyle = this.toRGBA();
 	}
 
+	static getGreyscale(lightness = 0.5){
+		var dn = Math.floor(lightness * 15);
+		dn = dn.toString(16);
+		return color.fromHex("#" + dn + dn + dn);
+	}
+
 	static get black(){
 		return color.fromHex("#000");
 	}

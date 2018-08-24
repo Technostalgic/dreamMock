@@ -164,17 +164,31 @@ class circuitComponent{
         return r;
     }
 
-    // a logic step for the circuit component, gathers input power and sends output power
-    stepCurrent(){
-        
+    // gathers all the power from the inputs into the power bank
+    gatherCurrent(){
+        var terms = this.getAllTerminals();
+        for(var term of terms){
+            if(term.terminalType == game.terminalType.input){
+                this.powerBank += term.powerBank;
+                term.powerBank = 0;
+            }
+        }
     }
+    // a logic step for the circuit component, gathers input power and sends output power
+    stepCurrent(dt){
+        this.gatherCurrent();
+        this.m_stepCurrent(dt);
+    }
+    // for override
+    m_stepCurrent(dt){}
 
     static getEmpty(){
-        return new circuitComponent();
+        var r = new circuitComponent();
+        return r;
     }
 
     draw(ctx, pos, tileSize){
-        var midRadius = 4;
+        var midRadius = 5;
         var terms = this.getAllTerminals();
         
         for(var term of terms)
@@ -200,8 +214,7 @@ class componentTerminal{
 
     // the proper way to attach a terminal to a component
     attachToComponent(componentObj, dir = null){
-        this.parentComponent = componentObj;
-        if(!!dir) this.terminalDirection = dir;
+        componentObj.attachTerminal(this);
     }
 
     addPower(pwr){
@@ -216,9 +229,9 @@ class componentTerminal{
         return r;
     }
 
-    draw(ctx, pos, tileSize, col = color.black){
-        var maxWidth = 3;
-        var minWidth = 1;
+    draw(ctx, pos, tileSize, col = color.getGreyscale(0.2)){
+        var maxWidth = 4;
+        var minWidth = 2;
         var length = tileSize / 2;
 
         // swap max with min widths, if the terminalType is input, so that input terminals can be differentiated from output terminals
@@ -237,18 +250,18 @@ class componentTerminal{
         }
 
         // determine the 4 corners of the polygon
-        var tl = new vec2(0, -mxW).rotated(termDir).plus(pos);
-        var tr = new vec2(length, -mnW).rotated(termDir).plus(pos);
-        var br = new vec2(length, mnW).rotated(termDir).plus(pos);
-        var bl = new vec2(0, mxW).rotated(termDir).plus(pos);
+        var tl = new vec2(0, -mxW).rotate(termDir).plus(pos).plus(new vec2(tileSize / 2));
+        var tr = new vec2(length, -mnW).rotate(termDir).plus(pos).plus(new vec2(tileSize / 2));
+        var br = new vec2(length, mnW).rotate(termDir).plus(pos).plus(new vec2(tileSize / 2));
+        var bl = new vec2(0, mxW).rotate(termDir).plus(pos).plus(new vec2(tileSize / 2));
 
         // draw the polygon
         col.setFill(ctx);
         ctx.beginPath();
         ctx.moveTo(tl.x, tl.y);
         ctx.lineTo(tr.x, tr.y);
-        ctx.lineTo(bl.x, bl.y);
         ctx.lineTo(br.x, br.y);
+        ctx.lineTo(bl.x, bl.y);
         ctx.closePath();
         ctx.fill();
     }
