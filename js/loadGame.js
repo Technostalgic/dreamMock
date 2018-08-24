@@ -20,8 +20,12 @@ function loadScripts(){
 	// load the main game script
 	var script_game = document.createElement("script");
 	script_game.src = "./js/game.js";
+	// load the circuitry script
+	var script_circuit = document.createElement("script");
+	script_circuit.src = "./js/circuit.js";
 
 	// append the scripts to the HTML document
+	document.head.appendChild(script_circuit);
 	document.head.appendChild(script_vec2);
 	document.head.appendChild(script_game);
 }
@@ -51,4 +55,6 @@ function initialize(){
 }
 
 // =================================================================================================
-window.addEventListener("load", initialize);
+window.addEventListener("load", function(){
+	setTimeout(initialize);
+});

@@ -235,13 +235,23 @@ class color{
 		return "#" + r + g + b;
 	}
 	
-	setFill(ctx = renderContext){
+	setFill(ctx){
 		// sets the specified context's fill style to this color
 		ctx.fillStyle = this.toRGBA();
 	}
-	setStroke(ctx = renderContext){
+	setStroke(ctx){
 		// sets the specified context's stroke style to this color
 		ctx.strokeStyle = this.toRGBA();
+	}
+
+	static get black(){
+		return color.fromHex("#000");
+	}
+	static get white(){
+		return color.fromHex("#FFF");
+	}
+	static get transparent(){
+		return color.fromHex("#000", 0);
 	}
 }
 

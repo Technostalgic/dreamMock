@@ -34,6 +34,9 @@ function initGameVars(){
 	game.renderCanvas.height = game.nativeResolution.y;
 	// context for the render canvas so it can be written to
 	game.renderContext = game.renderCanvas.getContext("2d");
+
+	// Stuff for testing the circuits
+	game.initialCircuit = circuit.fromSize(new vec2(10));
 }
 
 function getDT(){
@@ -54,6 +57,9 @@ function logicStep(dt){
 }
 // handles logic that has to do with rendering
 function renderStep(){
+	// draw the test circuit
+	game.initialCircuit.draw(game.renderContext, new vec2(10), 32);
+
 	// paste the render canvas onto the scaling canvas with the corrected size
 	game.scalingContext.drawImage(
 		game.renderCanvas, 

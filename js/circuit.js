@@ -20,6 +20,12 @@ class circuit{
         this.grid = [];
     }
 
+    static fromSize(size){
+        var r = new circuit();
+        r.setGridSize(size);
+        return r;
+    }
+
     // sets the 'grid' to the specified size and fills it with empty components
     setGridSize(x, y){
         // if the user only entered the first parameter as a 2d vector instead of specifying both x and y
@@ -30,12 +36,18 @@ class circuit{
 
         // populate the grid with empty components
         this.grid = [];
-        for(let gx = 0; gx < x; x++){
+        for(let gx = 0; gx < x; gx++){
             this.grid[gx] = [];
             for(let gy = 0; gy < y; gy++){
                 this.grid[gx][gy] = circuitComponent.getEmpty();
             }
         }
+    }
+    // iterates through each component in the grid with the specified function
+    iterateGrid(func = function(comp, x, y){}){
+        for(var x = 0; x < this.grid.length; x++)
+            for(var y = 0; y < this.grid[x].length; y++)
+                func(this.grid[x][y], x, y);
     }
 
     getComponentAt(x, y){
@@ -44,6 +56,15 @@ class circuit{
     setComponentAt(componentObj, x, y){
         this.grid[x][y] = componentObj;
     }
+
+    // draws all the components in the circuit's grid
+    draw(ctx, pos, tileSize = 32){
+        this.iterateGrid(
+            function(comp, x, y){
+                if(!comp) return;
+                comp.draw(ctx, pos.plus(new vec2(x * tileSize, y * tileSize)), tileSize);
+            });
+    }
 }
 
 class circuitComponent{
@@ -51,7 +72,9 @@ class circuitComponent{
         this.circuitParent = null;
         this.circuitPosition = null;
         
-        this.terminals = [];
+        this.terminals = {
+            left:null, right:null, up:null, down:null
+        };
         
         this.powerBank = 0;
         this.powerConsumption = 0;
@@ -59,11 +82,16 @@ class circuitComponent{
         this.powerAmplification = 1;
     }
 
-    // attaches a terminal to the component
+    // attaches a componentTerminal to the component
     attachTerminal(terminalObj, dir = null){
-        dir = terminalDir || terminalObj.terminalDirection;
+        dir = dir || terminalObj.terminalDirection;
         terminalObj.parentComponent = this;
-        this.terminals.push(terminalObj);
+        switch(dir){
+            case side.left: this.terminals.left = terminalObj; break;
+            case side.right: this.terminals.right = terminalObj; break;
+            case side.up: this.terminals.up = terminalObj; break;
+            case side.down: this.terminals.down = terminalObj; break;
+        }
     }
 
     // the proper way to add a component to a circuit
@@ -82,12 +110,32 @@ class circuitComponent{
         //TODO: Fill output list 'r'
         return r;
     }
+    // gets a list of all the terminals this component is outputting to
+    getOutputTerminals(){
+        var outComps = this.getOutputComponents();
+        var r = [];
+        for(var comp of outComps){
+
+        }
+        return r;
+    }
     // gets a list of all the components that this component receives input from
     getInputComponents(){
         if(!this.circuitParent)inputinput
             return [];
         var r = [];
         //TODO: Fill input list 'r'
+        return r;
+    }
+    // gets a list of all terminals on the component
+    getAllTerminals(){
+        var r = [];
+
+        if(!!this.terminals.left) r.push(this.terminals.left);
+        if(!!this.terminals.right) r.push(this.terminals.right);
+        if(!!this.terminals.up) r.push(this.terminals.up);
+        if(!!this.terminals.down) r.push(this.terminals.down);
+
         return r;
     }
 
@@ -99,12 +147,27 @@ class circuitComponent{
     static getEmpty(){
         return new circuitComponent();
     }
+
+    draw(ctx, pos, tileSize){
+        var midRadius = 4;
+        var terms = this.getAllTerminals();
+        
+        for(var term of terms)
+            term.draw(ctx, pos, tileSize);
+        
+        var tpos = pos.plus(new vec2(tileSize / 2));
+        color.black.setFill(ctx);
+        ctx.beginPath();
+        ctx.arc(tpos.x, tpos.y, midRadius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+    }
 }
 
 class componentTerminal{
     constructor(){
         this.parentComponent = null;
-        this.type = game.terminalType.closed;
+        this.terminalType = game.terminalType.closed;
         this.terminalDirection = side.none;
         this.powerBank = 0;
         this.terminalID = -1;
@@ -126,5 +189,42 @@ class componentTerminal{
         r.attachToComponent(componentObj);
         r.terminalDirection = dir;
         return r;
+    }
+
+    draw(ctx, pos, tileSize, col = color.black){
+        var maxWidth = 3;
+        var minWidth = 1;
+        var length = tileSize / 2;
+
+        // swap max with min widths, if the terminalType is input, so that input terminals can be differentiated from output terminals
+        var mxW = this.terminalType == game.terminalType.output ? 
+            maxWidth : minWidth;
+        var mnW = this.terminalType == game.terminalType.output ?
+            minWidth : maxWidth;
+        
+        // how the polygon vertices should be rotated according to the terminalDirection
+        var termDir = 0;
+        switch(this.terminalDirection){
+            case side.left: termDir = Math.PI; break;
+            case side.right: termDir = 0; break;
+            case side.up: termDir = Math.PI / -2; break;
+            case side.down: termDir = Math.PI / 2; break;
+        }
+
+        // determine the 4 corners of the polygon
+        var tl = new vec2(0, -mxW).rotated(termDir).plus(pos);
+        var tr = new vec2(length, -mnW).rotated(termDir).plus(pos);
+        var br = new vec2(length, mnW).rotated(termDir).plus(pos);
+        var bl = new vec2(0, mxW).rotated(termDir).plus(pos);
+
+        // draw the polygon
+        col.setFill(ctx);
+        ctx.beginPath();
+        ctx.moveTo(tl.x, tl.y);
+        ctx.lineTo(tr.x, tr.y);
+        ctx.lineTo(bl.x, bl.y);
+        ctx.lineTo(br.x, br.y);
+        ctx.closePath();
+        ctx.fill();
     }
 }
