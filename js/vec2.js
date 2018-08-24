@@ -247,6 +247,9 @@ class color{
 	static get black(){
 		return color.fromHex("#000");
 	}
+	static get grey(){
+		return color.fromHex("#aaa");
+	}
 	static get white(){
 		return color.fromHex("#FFF");
 	}
@@ -319,12 +322,12 @@ class collisionBox{
 		return new collisionBox(this.pos.clone(), this.size.clone());
 	}
 	
-	drawFill(ctx, color = "#aaa"){
-		ctx.fillStyle = color;
+	drawFill(ctx, color = color.grey){
+		ctx.fillStyle = color.toRGBA();
 		ctx.fillRect(this.left, this.top, this.width, this.height);
 	}
-	drawOutline(ctx, color = "#000", lineWidth = 1){
-		ctx.strokeStyle = color;
+	drawOutline(ctx, color = color.black, lineWidth = 1){
+		ctx.strokeStyle = color.toRGBA();
 		ctx.lineWidth = lineWidth;
 		ctx.strokeRect(this.left, this.top, this.width, this.height);
 	}

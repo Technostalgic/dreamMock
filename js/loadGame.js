@@ -14,6 +14,9 @@ function loadGame(){
 
 // loads all the game scripts onto the HTML document
 function loadScripts(){
+	// load the controlState script
+	var script_controlState = document.createElement("script");
+	script_controlState.src = "./js/controlState.js";
 	// load the vec2 game script
 	var script_vec2 = document.createElement("script");
 	script_vec2.src = "./js/vec2.js";
@@ -27,6 +30,7 @@ function loadScripts(){
 	// append the scripts to the HTML document
 	document.head.appendChild(script_circuit);
 	document.head.appendChild(script_vec2);
+	document.head.appendChild(script_controlState);
 	document.head.appendChild(script_game);
 }
 // initailizes all the variables from the scripts that are loaded{

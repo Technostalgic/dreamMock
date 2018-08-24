@@ -13,11 +13,17 @@ game.terminalType = {
     closed: 0,
     input: 1,
     output: 2
-}
+};
+// circuit state enumerator
+game.circuitStates = {
+    building: 0,
+    running: 1
+};
 
 class circuit{
     constructor(){
         this.grid = [];
+        this.circuitState = game.circuitStates.building;
     }
 
     static fromSize(size){
@@ -50,6 +56,24 @@ class circuit{
                 func(this.grid[x][y], x, y);
     }
 
+    //
+    startRunning(){
+        this.circuitState = game.circuitStates.running;
+    }
+    stopRunning(){
+        this.circuitState = game.circuitStates.building;
+    }
+    sendPulse(dt = 100){
+        if(this.circuitState === game.circuitStates.building)
+            return;
+        console.log("sending pulse of " + dt.toString() + "ms..");
+    }
+    sendTrigger(dt = 100){
+        if(this.circuitState === game.circuitStates.building)
+            return;
+        console.log("sending trigger of " + dt.toString() + "ms..");
+    }
+
     getComponentAt(x, y){
         return this.grid[x][y];
     }
@@ -80,6 +104,7 @@ class circuitComponent{
         this.powerConsumption = 0;
         this.powerResistance = 0;
         this.powerAmplification = 1;
+        this.powerDischargeRate = 1;
     }
 
     // attaches a componentTerminal to the component
