@@ -52,10 +52,18 @@ class circuitComponent{
         this.circuitPosition = null;
         
         this.terminals = [];
-
+        
+        this.powerBank = 0;
         this.powerConsumption = 0;
         this.powerResistance = 0;
         this.powerAmplification = 1;
+    }
+
+    // attaches a terminal to the component
+    attachTerminal(terminalObj, dir = null){
+        dir = terminalDir || terminalObj.terminalDirection;
+        terminalObj.parentComponent = this;
+        this.terminals.push(terminalObj);
     }
 
     // the proper way to add a component to a circuit
@@ -83,6 +91,11 @@ class circuitComponent{
         return r;
     }
 
+    // a logic step for the circuit component, gathers input power and sends output power
+    stepCurrent(){
+        
+    }
+
     static getEmpty(){
         return new circuitComponent();
     }
@@ -93,6 +106,7 @@ class componentTerminal{
         this.parentComponent = null;
         this.type = game.terminalType.closed;
         this.terminalDirection = side.none;
+        this.powerBank = 0;
         this.terminalID = -1;
     }
 
@@ -100,6 +114,10 @@ class componentTerminal{
     attachToComponent(componentObj, dir = null){
         this.parentComponent = componentObj;
         if(!!dir) this.terminalDirection = dir;
+    }
+
+    addPower(pwr){
+        this.powerBank += pwr;
     }
 
     // returns a closed terminal
