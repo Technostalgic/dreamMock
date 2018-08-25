@@ -74,7 +74,13 @@ class circuit{
         console.log("sending trigger of " + dt.toString() + "ms..");
     }
 
-    getComponentAt(x, y){
+    getComponentAt(x, y = null){
+		if(y == null)
+			return this.getComponentAt(x.x, x.y);
+		if(this.grid.length <= x || x < 0)
+			return null;
+		if(this.grid[x].length <= y || y < 0)
+			return null;
         return this.grid[x][y];
     }
     setComponentAt(componentObj, x, y){
@@ -163,7 +169,15 @@ class circuitComponent{
 
         return r;
     }
-
+	getTerminalAtDir(dir){
+		switch(dir){
+			case side.left: return this.terminals.left;
+			case side.right: return this.terminals.right;
+			case side.up: return this.terminals.up;
+			case side.down: return this.terminals.down;
+		}
+	}
+	
     // gathers all the power from the inputs into the power bank
     gatherCurrent(){
         var terms = this.getAllTerminals();
