@@ -131,6 +131,11 @@ function handleInitialCircuitBuilding(controlstate = controlState){
 			termPl.terminalType = game.terminalType.output;
 			termPl.terminalDirection = termOr.direction;
 			termPl.attachToComponent(comp);
+			
+			var opterm = termPl.getOppositeTerminal();
+			if(!!opterm)
+				if(opterm.terminalType == game.terminalType.output)
+					termPl.terminalType = game.terminalType.input;
 		}
 	}
 	

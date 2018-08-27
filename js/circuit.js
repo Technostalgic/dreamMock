@@ -45,7 +45,7 @@ class circuit{
         for(let gx = 0; gx < x; gx++){
             this.grid[gx] = [];
             for(let gy = 0; gy < y; gy++){
-                this.grid[gx][gy] = circuitComponent.getEmpty();
+				this.setComponentAt(circuitComponent.getEmpty(), gx, gy);
             }
         }
     }
@@ -83,8 +83,11 @@ class circuit{
 			return null;
         return this.grid[x][y];
     }
-    setComponentAt(componentObj, x, y){
+    setComponentAt(componentObj, x, y = null){
+		if(y == null) return this.setComponentAt(componentObj, x.x, x.y);
         this.grid[x][y] = componentObj;
+		componentObj.circuitParent = this;
+		componentObj.circuitPosition = new vec2(x, y);
     }
 
     // draws all the components in the circuit's grid
@@ -127,11 +130,10 @@ class circuitComponent{
 
     // the proper way to add a component to a circuit
     attachToCircuit(circuitObj, x, y){
-        if(!y){
-            this.attachToCircuit(circuitObj, x.x, x.y);
-            return;
-        }
-        this.circuitParent = circuitObj;
+        if(!y)
+            return this.attachToCircuit(circuitObj, x.x, x.y);
+		circuitObj.setComponentAt(this, x, y);
+		return this;
     }
     // gets a list of all the coomponents that this component outputs to
     getOutputComponents(){
@@ -231,6 +233,15 @@ class componentTerminal{
         componentObj.attachTerminal(this);
     }
 
+	// returns the terminal that this terminal is connected to (or /would be/ conntected to if it's closed)
+	getOppositeTerminal(){
+		var gridpos = this.parentComponent.circuitPosition;
+		gridpos = gridpos.plus(vec2.fromSide(this.terminalDirection));
+		var opTermDir = invertedSide(this.terminalDirection);
+		var opComp = this.parentComponent.circuitParent.getComponentAt(gridpos);
+		if(!opComp) return null;
+		return opComp.getTerminalAtDir(opTermDir);
+	}
     addPower(pwr){
         this.powerBank += pwr;
     }
